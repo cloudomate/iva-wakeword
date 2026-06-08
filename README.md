@@ -1,29 +1,22 @@
 # iva-wakeword
 
-Custom **microWakeWord** models for [Iva](https://github.com/cloudomate/iva-hermes)
-— the on-device "Okay Iva" voice assistant — plus the training pipeline that
-produces them.
+The **wake-word training project** for [Iva](https://github.com/cloudomate/iva-hermes)
+— the on-device "Okay Iva" voice assistant. It holds the training pipeline for
+custom **microWakeWord** models and the trained model artifacts it produces.
 
-This is dev-time work (run on a Mac with
-[OHF-Voice/micro-wake-word](https://github.com/OHF-Voice/micro-wake-word)); the
-quantized `.tflite` + `.json` outputs are **consumed at runtime** by the device
-app (`cloudomate/iva-hermes`), which loads every `*.json` in the device's
-`WAKE_MODELS_DIR` (default `/home/iva/wakewords/`).
-
-This is a pip package — `pip install iva-wakeword` — that ships the models as
-package data. The device app finds them via `iva_wakeword.models_dir()`:
-
-```python
-from iva_wakeword import models_dir
-print(models_dir())   # -> .../iva_wakeword/models  (contains *.tflite + *.json)
-```
+This is dev-time work, run on a Mac with
+[OHF-Voice/micro-wake-word](https://github.com/OHF-Voice/micro-wake-word). It is
+**not** runtime code: the *runtime* that loads + scores wake words on the device
+is the `pymicro-wakeword` package, and the active models ship bundled inside the
+device app (`cloudomate/iva-hermes`). This repo is where you **create new
+models**; the produced `.tflite` + `.json` are then copied into iva-hermes.
 
 ```
-src/iva_wakeword/models/   # trained models (quantized .tflite + .json), shipped as package data
+wakewords/                 # trained model artifacts (quantized .tflite + .json)
   okay_iva.{tflite,json}   #   the ACTIVE wake word
   hey_iva.{tflite,json}
   hey_hermes.{tflite,json}
-training/                  # the training pipeline (run on a Mac; NOT shipped in the wheel)
+training/                  # the training pipeline (run on a Mac)
   TRAINING.md              #   full pipeline + the empirical wake-word design lessons
   prep_*.py                #   dataset prep (synthetic Piper + real recordings)
   record_wakeword.py       #   capture real wake-word samples
@@ -37,9 +30,14 @@ See `training/TRAINING.md` for the full pipeline and the hard-won lessons —
 notably: syllable count dominates accuracy, and synthetic Piper audio often
 mismatches the real speaker, so train on **real recordings** of the target voice.
 
-## Deploying models to a device
+## Shipping a new model to the device
 
-The device app pulls these models in `cloudomate/iva-hermes`'s
-`deploy/install-device.sh` (copies `wakewords/*` to the device's
-`WAKE_MODELS_DIR`). After training a new model, commit it here and re-run that
-installer (or copy the `.tflite` + `.json` to `/home/iva/wakewords/`).
+After training, the model is consumed by the device app, not installed from
+here. To roll a new wake word out:
+
+1. Train it here → `wakewords/<name>.{tflite,json}`.
+2. Copy those two files into `iva-hermes` at `src/iva/data/wakewords/` (they ship
+   as package data) and release a new `iva-hermes`; **or** drop them into the
+   device's `WAKE_MODELS_DIR` (default `/home/iva/wakewords/`) directly.
+
+The daemon auto-loads every `*.json` in `WAKE_MODELS_DIR`; "Okay Iva" is active.
