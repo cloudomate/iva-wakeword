@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+# training scratch
+/recordings/
+/datasets/
+/output/
+*.wav
