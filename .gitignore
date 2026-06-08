@@ -5,3 +5,6 @@ __pycache__/
 /datasets/
 /output/
 *.wav
+/dist/
+/build/
+*.egg-info/

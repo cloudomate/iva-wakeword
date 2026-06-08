@@ -10,12 +10,20 @@ quantized `.tflite` + `.json` outputs are **consumed at runtime** by the device
 app (`cloudomate/iva-hermes`), which loads every `*.json` in the device's
 `WAKE_MODELS_DIR` (default `/home/iva/wakewords/`).
 
+This is a pip package — `pip install iva-wakeword` — that ships the models as
+package data. The device app finds them via `iva_wakeword.models_dir()`:
+
+```python
+from iva_wakeword import models_dir
+print(models_dir())   # -> .../iva_wakeword/models  (contains *.tflite + *.json)
 ```
-wakewords/                 # trained models (quantized .tflite + .json manifests)
+
+```
+src/iva_wakeword/models/   # trained models (quantized .tflite + .json), shipped as package data
   okay_iva.{tflite,json}   #   the ACTIVE wake word
   hey_iva.{tflite,json}
   hey_hermes.{tflite,json}
-training/                  # the training pipeline (templates, run on a Mac)
+training/                  # the training pipeline (run on a Mac; NOT shipped in the wheel)
   TRAINING.md              #   full pipeline + the empirical wake-word design lessons
   prep_*.py                #   dataset prep (synthetic Piper + real recordings)
   record_wakeword.py       #   capture real wake-word samples

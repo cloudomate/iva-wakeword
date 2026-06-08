@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iva-wakeword"
+description = "Wake-word models (microWakeWord) for the Iva voice assistant"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Iva / Hermes Agent" }]
+keywords = ["wake-word", "microwakeword", "iva", "voice-assistant"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/cloudomate/iva-wakeword"
+Repository = "https://github.com/cloudomate/iva-wakeword"
+
+[tool.hatch.version]
+path = "src/iva_wakeword/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/iva_wakeword"]
+# ship the .tflite/.json models as package data
+artifacts = ["src/iva_wakeword/models/**"]
